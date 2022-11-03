@@ -2,8 +2,12 @@ const bodyParser = require('body-parser')
 const express = require('express')
 const path = require('path')
 
+// routes
 const adminRoutes = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
+
+// controller
+const error = require('./controllers/error')
 
 const app = express()
 
@@ -21,10 +25,6 @@ app.use('/admin', adminRoutes)
 app.use(shopRoutes)
 
 // page not found page
-app.use((req, res, next) => {
-  res
-    .status(404)
-    .render('page-not-found', { pageTitle: 'Page not found', path: null })
-})
+app.use(error.pageNotFound)
 
 app.listen(3000)
