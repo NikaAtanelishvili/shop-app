@@ -1,20 +1,10 @@
 const express = require('express')
 
 const router = express.Router()
-const adminData = require('./admin')
 
-// get ( exact match )
-router.get('/', (req, res, next) => {
-  const products = adminData.products
-  res.render('shop', {
-    prods: products,
-    pageTitle: 'Shop',
+// controller
+const productsController = require('../controllers/products')
 
-    path: '/',
-    hasProducts: products.length > 0,
-    activeShop: true,
-    productCss: true,
-  })
-})
+router.get('/', productsController.getProducts)
 
 module.exports = router
