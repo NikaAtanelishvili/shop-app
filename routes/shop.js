@@ -3,8 +3,18 @@ const express = require('express')
 const router = express.Router()
 
 // controller
-const productsController = require('../controllers/products')
+const shopController = require('../controllers/shop')
 
-router.get('/', productsController.getProducts)
+// product-list
+router.get('/', shopController.getIndex)
+
+// cart
+router.get('/cart', shopController.getCart)
+
+// product
+router.get('/products', shopController.getProducts)
+
+// checkout
+router.get('/checkout', shopController.getCheckout)
 
 module.exports = router
