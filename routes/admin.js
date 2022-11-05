@@ -3,7 +3,6 @@ const express = require('express')
 const router = express.Router()
 
 // controller
-const shopController = require('../controllers/shop')
 const adminController = require('../controllers/admin')
 
 // add-product
