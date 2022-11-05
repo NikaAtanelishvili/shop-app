@@ -11,8 +11,13 @@ router.get('/', shopController.getIndex)
 // cart
 router.get('/cart', shopController.getCart)
 
-// product
+router.post('/cart', shopController.postCart)
+
+// all product
 router.get('/products', shopController.getProducts)
+
+// product-detail
+router.get('/products/:productId', shopController.getProductDetail)
 
 // checkout
 router.get('/checkout', shopController.getCheckout)

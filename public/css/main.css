@@ -141,6 +141,13 @@ form {
   align-items: stretch;
 }
 
+.centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .card {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
 }

@@ -1,12 +1,14 @@
 const fs = require('fs')
 const path = require('path')
 
+// data/products.json path
 const p = path.join(
   path.dirname(require.main.filename),
   'data',
   'products.json'
 )
 
+// get all products
 const getProductsFromFile = cb => {
   fs.readFile(p, (err, fileContent) => {
     if (err) {
@@ -23,6 +25,7 @@ module.exports = class Product {
       (this.imageUrl = imageUrl),
       (this.description = description),
       (this.price = price)
+    this.id = Math.random().toString()
   }
 
   save() {
@@ -36,5 +39,12 @@ module.exports = class Product {
 
   static fetchAll(cb) {
     getProductsFromFile(cb)
+  }
+
+  static findById(productId, callback) {
+    getProductsFromFile(products => {
+      const product = products.find(product => product.id === productId)
+      callback(product)
+    })
   }
 }
