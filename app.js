@@ -1,19 +1,17 @@
-const bodyParser = require('body-parser')
-const express = require('express')
 const path = require('path')
 
-// routes
-const adminRoutes = require('./routes/admin')
-const shopRoutes = require('./routes/shop')
+const express = require('express')
+const bodyParser = require('body-parser')
 
-// controller
 const error = require('./controllers/error')
 
 const app = express()
 
-// templating engines
 app.set('view engine', 'ejs')
-app.set('views', 'views') // where to find
+app.set('views', 'views')
+
+const adminRoutes = require('./routes/admin')
+const shopRoutes = require('./routes/shop')
 
 app.use(bodyParser.urlencoded({ extended: false }))
 

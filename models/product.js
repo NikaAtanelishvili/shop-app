@@ -1,14 +1,14 @@
 const fs = require('fs')
 const path = require('path')
 
-// data/products.json path
+const Cart = require('./cart')
+
 const p = path.join(
-  path.dirname(require.main.filename),
+  path.dirname(process.mainModule.filename),
   'data',
   'products.json'
 )
 
-// get all products
 const getProductsFromFile = cb => {
   fs.readFile(p, (err, fileContent) => {
     if (err) {
@@ -49,14 +49,26 @@ module.exports = class Product {
     })
   }
 
+  static deleteById(id) {
+    getProductsFromFile(products => {
+      const product = products.find(prod => prod.id === id)
+      const updatedProducts = products.filter(prod => prod.id !== id)
+      fs.writeFile(p, JSON.stringify(updatedProducts), err => {
+        if (!err) {
+          Cart.deleteProduct(id, product.price)
+        }
+      })
+    })
+  }
+
   static fetchAll(cb) {
     getProductsFromFile(cb)
   }
 
-  static findById(productId, callback) {
+  static findById(id, cb) {
     getProductsFromFile(products => {
-      const product = products.find(product => product.id === productId)
-      callback(product)
+      const product = products.find(p => p.id === id)
+      cb(product)
     })
   }
 }
