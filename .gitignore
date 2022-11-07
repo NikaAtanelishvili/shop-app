@@ -12,12 +12,6 @@
 /build
 
 
-# data
-data
-/data
-cart.json
-products.json
-
 # misc
 .DS_Store
 .env.local

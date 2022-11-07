@@ -3,7 +3,8 @@ const path = require('path')
 const express = require('express')
 const bodyParser = require('body-parser')
 
-const error = require('./controllers/error')
+const errorController = require('./controllers/error')
+const mongoConnect = require('./util/database').mongoConnect
 
 const app = express()
 
@@ -14,15 +15,13 @@ const adminRoutes = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
 
 app.use(bodyParser.urlencoded({ extended: false }))
-
-// connect css
 app.use(express.static(path.join(__dirname, 'public')))
 
-// routes
 app.use('/admin', adminRoutes)
 app.use(shopRoutes)
 
-// page not found page
-app.use(error.pageNotFound)
+app.use(errorController.pageNotFound)
 
-app.listen(3000)
+mongoConnect(() => {
+  app.listen(3000)
+})
