@@ -3,22 +3,31 @@ const { ObjectId } = require('mongodb')
 
 class Product {
   // Creating product
-  constructor(title, price, description, imageUrl) {
+  constructor(title, price, description, imageUrl, id) {
     this.title = title
     this.price = price
     this.description = description
     this.imageUrl = imageUrl
+    this._id = new ObjectId(id)
   }
 
   // Creating collection
   save() {
     const db = getDb()
+    let dbOp
 
-    return db
-      .collection('products')
-      .insertOne(this)
-      .then(res => console.log(res))
-      .catch(err => console.log(err))
+    // PURPOSE - For editing functionality
+    // If product exists UPDATE existing object on mongoDB database
+    // If product DOES NOT exists create new object on mongoDB database
+    if (this._id) {
+      dbOp = db
+        .collection('products')
+        .updateOne({ _id: this._id }, { $set: this })
+    } else {
+      dbOp = db.collection('products').insertOne(this)
+    }
+
+    return dbOp.then(res => console.log(res)).catch(err => console.log(err))
   }
 
   // Fetching products

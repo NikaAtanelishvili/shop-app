@@ -8,12 +8,12 @@ const adminController = require('../controllers/admin')
 router.get('/add-product', adminController.getAddProduct)
 router.post('/add-product', adminController.postAddProduct)
 
-// Getting products
-// router.get('/products', adminController.getProducts)
+// Getting admin products
+router.get('/products', adminController.getAdminProducts)
 
 // Editing product
-// router.get('/edit-product/:productId', adminController.getEditProduct);
-// router.post('/edit-product', adminController.postEditProduct);
+router.get('/edit-product/:productId', adminController.getEditProduct)
+router.post('/edit-product', adminController.postEditProduct)
 
 // Deleting product
 // router.post('/delete-product', adminController.postDeleteProduct);
