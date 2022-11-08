@@ -4,7 +4,9 @@ const express = require('express')
 const bodyParser = require('body-parser')
 
 const errorController = require('./controllers/error')
-const {mongoConnect} = require('./util/database')
+const { mongoConnect } = require('./util/database')
+const User = require('./models/user')
+const ObjectId = require('mongodb')
 
 const app = express()
 
@@ -21,6 +23,15 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 // CSS
 app.use(express.static(path.join(__dirname, 'public')))
+
+app.use((req, res, next) => {
+  User.findUserById('636a89efb216f5946fd03d75')
+    .then(user => {
+      req.user = user
+      next()
+    })
+    .catch(err => console.log(err))
+})
 
 // Using routes
 app.use(shopRoutes)
