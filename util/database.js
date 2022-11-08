@@ -1,5 +1,4 @@
-const mongodb = require('mongodb')
-const MongoClient = mongodb.MongoClient
+const { MongoClient } = require('mongodb')
 
 let _db
 const url =
@@ -8,22 +7,18 @@ const url =
 const mongoConnect = callback => {
   MongoClient.connect(url)
     .then(client => {
-      console.log('Connected!')
       _db = client.db()
       callback()
     })
     .catch(err => {
       console.log(err)
-      throw err
+      throw err()
     })
 }
 
 const getDb = () => {
-  if (_db) {
-    return _db
-  }
-  throw 'No database found!'
+  if (_db) return _db
 }
 
-exports.mongoConnect = mongoConnect
 exports.getDb = getDb
+exports.mongoConnect = mongoConnect

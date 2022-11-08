@@ -1,6 +1,8 @@
 const { getDb } = require('../util/database')
+const { ObjectId } = require('mongodb')
 
 class Product {
+  // Creating product
   constructor(title, price, description, imageUrl) {
     this.title = title
     this.price = price
@@ -8,10 +10,10 @@ class Product {
     this.imageUrl = imageUrl
   }
 
+  // Creating collection
   save() {
     const db = getDb()
 
-    // Creating collection
     return db
       .collection('products')
       .insertOne(this)
@@ -19,18 +21,27 @@ class Product {
       .catch(err => console.log(err))
   }
 
+  // Fetching products
   static fetchAll() {
     const db = getDb()
 
-    // Fetching products
     return db
       .collection('products')
       .find()
       .toArray()
-      .then(products => {
-        console.log(products)
-        return products
-      })
+      .then(products => products)
+      .catch(err => console.log(err))
+  }
+
+  // Find product by id
+  static findById(id) {
+    const db = getDb()
+
+    return db
+      .collection('products')
+      .find({ _id: new ObjectId(id) })
+      .next()
+      .then(product => product)
       .catch(err => console.log(err))
   }
 }
