@@ -8,7 +8,7 @@ class Product {
     this.price = price
     this.description = description
     this.imageUrl = imageUrl
-    this._id = new ObjectId(id)
+    this._id = id && new ObjectId(id)
   }
 
   // Creating collection
@@ -51,6 +51,16 @@ class Product {
       .find({ _id: new ObjectId(id) })
       .next()
       .then(product => product)
+      .catch(err => console.log(err))
+  }
+
+  // Delete product by id
+  static deleteById(id) {
+    const db = getDb()
+    return db
+      .collection('products')
+      .deleteOne({ _id: new ObjectId(id) })
+      .then(res => console.log('Deleted'))
       .catch(err => console.log(err))
   }
 }
