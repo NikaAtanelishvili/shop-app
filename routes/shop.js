@@ -13,7 +13,7 @@ router.get('/products/:productId', shopController.getProduct)
 
 // Cart products
 // router.get('/cart', shopController.getCart)
-// router.post('/cart', shopController.postCart)
+router.post('/cart', shopController.postCart)
 
 // Deleting cart item
 // router.post('/cart-delete-item', shopController.postCartDeleteProduct)

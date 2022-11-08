@@ -2,11 +2,14 @@ const { getDb } = require('../util/database')
 const { ObjectId } = require('mongodb')
 
 class User {
-  constructor(username, email) {
+  constructor(username, email, cart, id) {
     this.name = username
     this.email = email
+    this.cart = cart // {item: []}
+    this._id = id
   }
 
+  // Creating user
   save() {
     const db = getDb()
 
@@ -17,6 +20,37 @@ class User {
       .catch(err => console.log(err))
   }
 
+  // Add cart items to user's mongoDB database collection
+  addToCart(product) {
+    const db = getDb()
+    // Find out if products is already exists in cart
+    const cartProductIndex = this.cart.items.findIndex(
+      p => p.productId.toString() === product._id.toString()
+    )
+    let newQuantity = 1
+    const updatedCartItems = [...this.cart.items]
+
+    // Updated existing cart item's quantity OR add new cart item
+    if (cartProductIndex >= 0) {
+      newQuantity = this.cart.items[cartProductIndex].quantity + 1
+      updatedCartItems[cartProductIndex].quantity = newQuantity
+    } else {
+      // Storing only product's reference and quantity
+      updatedCartItems.push({
+        productId: new ObjectId(product._id),
+        quantity: newQuantity,
+      })
+    }
+
+    const updatedCart = {
+      items: updatedCartItems,
+    }
+    return db
+      .collection('users')
+      .updateOne({ _id: ObjectId(this._id) }, { $set: { cart: updatedCart } })
+  }
+
+  // Find user by id
   static findUserById(userId) {
     const db = getDb()
 
