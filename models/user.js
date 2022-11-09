@@ -50,6 +50,30 @@ class User {
       .updateOne({ _id: ObjectId(this._id) }, { $set: { cart: updatedCart } })
   }
 
+  // user's cart
+  getCart() {
+    const db = getDb()
+    const productsId = this.cart.items.map(p => p.productId)
+    return (
+      db
+        .collection('products')
+        // Get products which are added to cart by current user
+        .find({ _id: { $in: productsId } })
+        .toArray()
+        .then(products => {
+          // add quantities to products
+          return products.map(product => {
+            return {
+              ...product,
+              quantity: this.cart.items.find(
+                p => p.productId.toString() === product._id.toString()
+              ).quantity,
+            }
+          })
+        })
+    )
+  }
+
   // Find user by id
   static findUserById(userId) {
     const db = getDb()
