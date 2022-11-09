@@ -16,7 +16,7 @@ class User {
     return db
       .collection('users')
       .insertOne(this)
-      .then(user => console.log(user))
+      .then()
       .catch(err => console.log(err))
   }
 
@@ -72,6 +72,21 @@ class User {
           })
         })
     )
+  }
+
+  deleteItemFromCart(id) {
+    const db = getDb()
+    const updatedCartItems = this.cart.items.filter(
+      item => item.productId.toString() !== id.toString()
+    )
+    console.log('updatedCartItem', updatedCartItems)
+
+    return db
+      .collection('users')
+      .updateOne(
+        { _id: ObjectId(this._id) },
+        { $set: { cart: { items: updatedCartItems } } }
+      )
   }
 
   // Find user by id
