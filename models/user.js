@@ -61,7 +61,24 @@ class User {
         .find({ _id: { $in: productsId } })
         .toArray()
         .then(products => {
-          // add quantities to products
+          let productsIdStr = productsId.map(p => p.toString())
+
+          const databaseProducts = products.map(p => p._id.toString())
+
+          productsIdStr = productsIdStr.filter(p => {
+            if (databaseProducts.includes(p)) return p
+          })
+
+          const updatedCart = this.cart.items.filter(p => {
+            if (productsIdStr.includes(p.productId.toString())) {
+              return p
+            } else {
+              this.deleteItemFromCart(p.productId.toString())
+            }
+          })
+
+          this.cart.items = updatedCart
+
           return products.map(product => {
             return {
               ...product,
@@ -79,7 +96,6 @@ class User {
     const updatedCartItems = this.cart.items.filter(
       item => item.productId.toString() !== id.toString()
     )
-    console.log('updatedCartItem', updatedCartItems)
 
     return db
       .collection('users')

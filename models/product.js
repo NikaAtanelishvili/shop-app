@@ -28,7 +28,7 @@ class Product {
       dbOp = db.collection('products').insertOne(this)
     }
 
-    return dbOp.then(res => console.log(res)).catch(err => console.log(err))
+    return dbOp.then().catch(err => console.log(err))
   }
 
   // Fetching products
@@ -61,7 +61,7 @@ class Product {
     return db
       .collection('products')
       .deleteOne({ _id: new ObjectId(id) })
-      .then(res => console.log('Deleted'))
+      .then()
       .catch(err => console.log(err))
   }
 }
