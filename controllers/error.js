@@ -1,4 +1,4 @@
-// page-not-found
+// Rendering page not found
 exports.pageNotFound = (req, res, next) => {
   res
     .status(404)

@@ -1,6 +1,6 @@
 const Product = require('../models/product')
 
-// Adding product
+// Rendering edit product
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Product',
@@ -9,6 +9,7 @@ exports.getAddProduct = (req, res, next) => {
   })
 }
 
+// Adding admin product
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title
   const imageUrl = req.body.imageUrl
@@ -82,8 +83,7 @@ exports.postEditProduct = (req, res, next) => {
   )
   product
     .save()
-    .then(result => {
-      console.log('UPDATED PRODUCT!')
+    .then(() => {
       res.redirect('/admin/products')
     })
     .catch(err => console.log(err))

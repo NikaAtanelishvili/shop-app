@@ -20,7 +20,7 @@ class User {
       .catch(err => console.log(err))
   }
 
-  // Add cart items to user's mongoDB database collection
+  // Add cart items 
   addToCart(product) {
     const db = getDb()
     // Find out if products is already exists in cart
@@ -50,7 +50,7 @@ class User {
       .updateOne({ _id: ObjectId(this._id) }, { $set: { cart: updatedCart } })
   }
 
-  // user's cart
+  // Getting user's current cart
   getCart() {
     const db = getDb()
     const productsId = this.cart.items.map(p => p.productId)
@@ -91,6 +91,7 @@ class User {
     )
   }
 
+  // Deleting products from cart
   deleteItemFromCart(id) {
     const db = getDb()
     const updatedCartItems = this.cart.items.filter(
@@ -105,6 +106,7 @@ class User {
       )
   }
 
+  // Adding order
   addOrder() {
     const db = getDb()
 
@@ -133,6 +135,7 @@ class User {
       })
   }
 
+  // Getting orders
   getOrders() {
     const db = getDb()
     // nested properties
@@ -142,7 +145,7 @@ class User {
       .toArray()
   }
 
-  // Find user by id
+  // Find user
   static findUserById(userId) {
     const db = getDb()
 

@@ -1,6 +1,8 @@
 const { MongoClient } = require('mongodb')
 
 let _db
+
+// Url for connecting mongodb database
 const url =
   'mongodb+srv://Nika:ubTWvwgDtXgTSx2L@cluster0.wquqyac.mongodb.net/shop?retryWrites=true&w=majority'
 

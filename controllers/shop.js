@@ -1,5 +1,6 @@
 const Product = require('../models/product')
 
+// Rendering product
 exports.getProducts = (req, res, next) => {
   Product.fetchAll()
     .then(products => {
@@ -12,6 +13,7 @@ exports.getProducts = (req, res, next) => {
     .catch(err => console.log(err))
 }
 
+// Rendering product details
 exports.getProduct = (req, res, next) => {
   const productId = req.params.productId
 
@@ -26,6 +28,7 @@ exports.getProduct = (req, res, next) => {
     .catch(err => console.log(err))
 }
 
+// Redering index
 exports.getIndex = (req, res, next) => {
   Product.fetchAll()
     .then(products => {
@@ -43,7 +46,6 @@ exports.getCart = (req, res, next) => {
   req.user
     .getCart()
     .then(products => {
-      console.log(products)
       res.render('shop/cart', {
         path: '/cart',
         pageTitle: 'Your Cart',
@@ -53,7 +55,7 @@ exports.getCart = (req, res, next) => {
     .catch(err => console.log(err))
 }
 
-// Add an element to the cart
+// Adding item to cart
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId
 
@@ -62,6 +64,7 @@ exports.postCart = (req, res, next) => {
     .then(() => res.redirect('/cart'))
 }
 
+// Deleting cart product
 exports.postCartDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId
 
@@ -71,6 +74,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
     .catch(err => console.log(err))
 }
 
+// Getting orders
 exports.postOrder = (req, res, next) => {
   req.user
     .addOrder()
@@ -78,6 +82,7 @@ exports.postOrder = (req, res, next) => {
     .catch(err => console.log(err))
 }
 
+// Rendering orders
 exports.getOrders = (req, res, next) => {
   req.user
     .getOrders()
