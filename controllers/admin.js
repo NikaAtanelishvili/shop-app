@@ -21,6 +21,7 @@ exports.postAddProduct = (req, res, next) => {
     price: price,
     description: description,
     imageUrl: imageUrl,
+    userId: req.user,
   })
   product
     .save()
@@ -33,7 +34,14 @@ exports.postAddProduct = (req, res, next) => {
 // Rendering admin products
 exports.getAdminProducts = (req, res, next) => {
   Product.find()
+    /*  
+    // select which fields should be retrived
+    .select('title price -_id')
+    // Populate field with details
+    .populate('userId', 'name') 
+    */
     .then(products => {
+      console.log(products)
       res.render('admin/products', {
         prods: products,
         pageTitle: 'Admin Products',
@@ -92,7 +100,7 @@ exports.postEditProduct = (req, res, next) => {
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId
 
-  Product.deleteById(prodId)
+  Product.findByIdAndRemove(prodId)
     .then(() => res.redirect('/admin/products'))
     .catch(err => console.log(err))
 }

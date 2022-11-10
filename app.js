@@ -24,14 +24,14 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.static(path.join(__dirname, 'public')))
 
 // User
-/* app.use((req, res, next) => {
-  User.findUserById('636a89efb216f5946fd03d75')
+app.use((req, res, next) => {
+  User.findById('636d3b31d4a1e00e10365723')
     .then(user => {
-      req.user = new User(user.name, user.email, user.cart, user._id)
+      req.user = user
       next()
     })
     .catch(err => console.log(err))
-}) */
+})
 
 // Using routes
 app.use(shopRoutes)
@@ -42,5 +42,21 @@ mongoose
   .connect(
     'mongodb+srv://Nika:ubTWvwgDtXgTSx2L@cluster0.wquqyac.mongodb.net/shop?retryWrites=true&w=majority'
   )
-  .then(() => app.listen(3000))
+  .then(() => {
+    User.findOne().then(user => {
+      if (!user) {
+        const user = new User({
+          name: 'Nika',
+          email: 'nika@test.com',
+          cart: {
+            items: [],
+          },
+        })
+
+        user.save()
+      }
+    })
+
+    app.listen(3000)
+  })
   .catch(err => console.log(err))
