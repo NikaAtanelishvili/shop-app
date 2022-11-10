@@ -12,20 +12,19 @@ exports.getAddProduct = (req, res, next) => {
 // Adding admin product
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title
-  const imageUrl = req.body.imageUrl
   const price = req.body.price
   const description = req.body.description
-  const product = new Product(
-    title,
-    price,
-    description,
-    imageUrl,
-    null,
-    req.user._id
-  )
+  const imageUrl = req.body.imageUrl
+
+  const product = new Product({
+    title: title,
+    price: price,
+    description: description,
+    imageUrl: imageUrl,
+  })
   product
     .save()
-    .then(result => res.redirect('/admin/products'))
+    .then(() => res.redirect('/admin/products'))
     .catch(err => {
       console.log(err)
     })

@@ -1,4 +1,4 @@
-const { getDb } = require('../util/database')
+/* const { getDb } = require('../util/database')
 const { ObjectId } = require('mongodb')
 
 class User {
@@ -20,7 +20,7 @@ class User {
       .catch(err => console.log(err))
   }
 
-  // Add cart items 
+  // Add cart items
   addToCart(product) {
     const db = getDb()
     // Find out if products is already exists in cart
@@ -156,4 +156,4 @@ class User {
   }
 }
 
-module.exports = User
+module.exports = User */
