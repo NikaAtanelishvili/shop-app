@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const Product = require('./product')
 
 const Schema = mongoose.Schema
 
@@ -28,59 +29,47 @@ const userSchema = new Schema({
   },
 })
 
+userSchema.methods.addToCart = function (product) {
+  // Find out if products is already exists in cart
+  const cartProductIndex = this.cart.items.findIndex(
+    p => p.productId.toString() === product._id.toString()
+  )
+  let newQuantity = 1
+  const updatedCartItems = [...this.cart.items]
+
+  // Updated existing cart item's quantity OR add new cart item
+  if (cartProductIndex >= 0) {
+    newQuantity = this.cart.items[cartProductIndex].quantity + 1
+    updatedCartItems[cartProductIndex].quantity = newQuantity
+  } else {
+    // Storing only product's reference and quantity
+    updatedCartItems.push({
+      productId: product._id,
+      quantity: newQuantity,
+    })
+  }
+
+  const updatedCart = {
+    items: updatedCartItems,
+  }
+
+  this.cart = updatedCart
+  return this.save()
+}
+
+userSchema.methods.removeFromCart = function (productId) {
+  const updatedCartItems = this.cart.items.filter(
+    item => item.productId.toString() !== productId.toString()
+  )
+
+  this.cart.items = updatedCartItems
+
+  return this.save()
+}
+
 module.exports = mongoose.model('User', userSchema)
 
-/* const { getDb } = require('../util/database')
-const { ObjectId } = require('mongodb')
-
-class User {
-  constructor(username, email, cart, id) {
-    this.name = username
-    this.email = email
-    this.cart = cart // {item: []}
-    this._id = id
-  }
-
-  // Creating user
-  save() {
-    const db = getDb()
-
-    return db
-      .collection('users')
-      .insertOne(this)
-      .then()
-      .catch(err => console.log(err))
-  }
-
-  // Add cart items
-  addToCart(product) {
-    const db = getDb()
-    // Find out if products is already exists in cart
-    const cartProductIndex = this.cart.items.findIndex(
-      p => p.productId.toString() === product._id.toString()
-    )
-    let newQuantity = 1
-    const updatedCartItems = [...this.cart.items]
-
-    // Updated existing cart item's quantity OR add new cart item
-    if (cartProductIndex >= 0) {
-      newQuantity = this.cart.items[cartProductIndex].quantity + 1
-      updatedCartItems[cartProductIndex].quantity = newQuantity
-    } else {
-      // Storing only product's reference and quantity
-      updatedCartItems.push({
-        productId: new ObjectId(product._id),
-        quantity: newQuantity,
-      })
-    }
-
-    const updatedCart = {
-      items: updatedCartItems,
-    }
-    return db
-      .collection('users')
-      .updateOne({ _id: ObjectId(this._id) }, { $set: { cart: updatedCart } })
-  }
+/* 
 
   // Getting user's current cart
   getCart() {
@@ -126,9 +115,7 @@ class User {
   // Deleting products from cart
   deleteItemFromCart(id) {
     const db = getDb()
-    const updatedCartItems = this.cart.items.filter(
-      item => item.productId.toString() !== id.toString()
-    )
+    
 
     return db
       .collection('users')
