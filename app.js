@@ -14,7 +14,6 @@ const MONGODB_URI =
 
 const app = express()
 
-// Store for sessions
 const store = new MongoDBStorage({
   uri: MONGODB_URI,
   collection: 'sessions',
@@ -35,7 +34,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // CSS
 app.use(express.static(path.join(__dirname, 'public')))
 
-// Setup session
+// Session
 app.use(
   session({
     secret: 'my secret',
@@ -45,19 +44,9 @@ app.use(
   })
 )
 
-// User
-app.use((req, res, next) => {
-  User.findById('636d3b31d4a1e00e10365723')
-    .then(user => {
-      req.user = user
-      next()
-    })
-    .catch(err => console.log(err))
-})
-
 // Using routes
-app.use(shopRoutes)
 app.use('/admin', adminRoutes)
+app.use(shopRoutes)
 app.use(authRoutes)
 
 app.use(errorController.pageNotFound)
