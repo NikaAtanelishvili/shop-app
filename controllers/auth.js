@@ -13,8 +13,17 @@ exports.postLogin = (req, res, next) => {
   User.findById('636d3b31d4a1e00e10365723').then(user => {
     req.session.isLoggedIn = true
     req.session.user = user
+
+    // runs when sessions are created
+    req.session.save(() => {
+      res.redirect('/')
+    })
+  })
+}
+
+exports.postLogout = (req, res, next) => {
+  req.session.destroy(err => {
+    console.log(err)
     res.redirect('/')
   })
-
-  // req.session.user = userData
 }

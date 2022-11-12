@@ -44,6 +44,17 @@ app.use(
   })
 )
 
+app.use((req, res, next) => {
+  if (!req.session.user) {
+    return next()
+  }
+  // to use mongoose methods we still use this middleware
+  User.findById(req.session.user._id).then(user => {
+    req.user = user
+    next()
+  })
+})
+
 // Using routes
 app.use('/admin', adminRoutes)
 app.use(shopRoutes)
