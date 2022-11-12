@@ -1,7 +1,13 @@
-// Rendering edit product
 exports.getLogin = (req, res, next) => {
+  console.log(req.session.isLoggedIn)
   res.render('auth/login', {
-    pageTitle: 'Login',
     path: '/login',
+    pageTitle: 'Login',
+    isAuthenticated: false,
   })
+}
+
+exports.postLogin = (req, res, next) => {
+  req.session.isLoggedIn = true
+  res.redirect('/')
 }
