@@ -13,15 +13,26 @@ exports.getLogin = (req, res, next) => {
 }
 
 exports.postLogin = (req, res, next) => {
-  User.findById('636d3b31d4a1e00e10365723').then(user => {
-    req.session.isLoggedIn = true
-    req.session.user = user
+  const email = req.body.email
+  const password = req.body.password
 
-    // runs when sessions are created
-    req.session.save(() => {
-      res.redirect('/')
-    })
-  })
+  ;(async () => {
+    // validate email
+    const userDoc = await User.findOne({ email: email })
+
+    if (!userDoc) return res.redirect('/login')
+
+    // validate password
+    const passwordMatch = await bcrypt.compare(password, userDoc.password)
+
+    if (!passwordMatch) return res.redirect('/login')
+
+    // create session
+    req.session.isLoggedIn = true
+    req.session.user = userDoc
+
+    return res.redirect('/')
+  })()
 }
 
 exports.postLogout = (req, res, next) => {
