@@ -9,22 +9,21 @@ const OrderSchema = new Schema({
       ref: 'User',
       required: true,
     },
-    name: {
+    email: {
       type: String,
       required: true,
     },
-   
   },
 
-  products: [{
-    product: { type: Object, required: true},
-    quantity: {
+  products: [
+    {
+      product: { type: Object, required: true },
+      quantity: {
         type: Number,
-        required: true
-    }
-  }],
+        required: true,
+      },
+    },
+  ],
 })
-
-
 
 module.exports = mongoose.model('Order', OrderSchema)

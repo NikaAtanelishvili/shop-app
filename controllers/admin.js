@@ -6,12 +6,11 @@ exports.getAddProduct = (req, res, next) => {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
     editing: false,
-    
   })
 }
 
 // Adding admin product
-exports.postAddProduct = (req, res, next) => {
+exports.postAddProduct = async (req, res, next) => {
   const title = req.body.title
   const price = req.body.price
   const description = req.body.description
@@ -24,60 +23,44 @@ exports.postAddProduct = (req, res, next) => {
     imageUrl: imageUrl,
     userId: req.user,
   })
-  product
-    .save()
-    .then(() => res.redirect('/admin/products'))
-    .catch(err => {
-      console.log(err)
-    })
+
+  await product.save()
+  res.redirect('/admin/products')
 }
 
 // Rendering admin products
-exports.getAdminProducts = (req, res, next) => {
-  Product.find()
-    /*  
-    // select which fields should be retrived
-    .select('title price -_id')
-    // Populate field with details
-    .populate('userId', 'name') 
-    */
-    .then(products => {
-      console.log(products)
-      res.render('admin/products', {
-        prods: products,
-        pageTitle: 'Admin Products',
-        path: '/admin/products',
-        
-      })
-    })
-    .catch(err => console.log(err))
+exports.getAdminProducts = async (req, res, next) => {
+  const products = await Product.find()
+
+  res.render('admin/products', {
+    prods: products,
+    pageTitle: 'Admin Products',
+    path: '/admin/products',
+  })
 }
 
 // Fetching and redering product that should be edited
-exports.getEditProduct = (req, res, next) => {
+exports.getEditProduct = async (req, res, next) => {
   const editMode = req.query.edit
-  if (!editMode) {
-    return res.redirect('/')
-  }
+
+  if (!editMode) return res.redirect('/')
+
   const productId = req.params.productId
 
-  Product.findById(productId)
-    .then(product => {
-      if (!product) return res.redirect('/')
+  const product = await Product.findById(productId)
 
-      res.render('admin/edit-product', {
-        pageTitle: 'Edit Product',
-        path: '/admin/edit-product',
-        editing: editMode,
-        product: product,
-        
-      })
-    })
-    .catch(err => console.log(err))
+  if (!product) return res.redirect('/')
+
+  res.render('admin/edit-product', {
+    pageTitle: 'Edit Product',
+    path: '/admin/edit-product',
+    editing: editMode,
+    product: product,
+  })
 }
 
 // Saving edited products
-exports.postEditProduct = (req, res, next) => {
+exports.postEditProduct = async (req, res, next) => {
   const prodId = req.body.productId
   const updatedTitle = req.body.title
   const updatedPrice = req.body.price
@@ -85,25 +68,22 @@ exports.postEditProduct = (req, res, next) => {
   const updatedDesc = req.body.description
 
   // Get edited product
-  Product.findById(prodId)
-    .then(product => {
-      // Updated product data
-      product.title = updatedTitle
-      product.price = updatedPrice
-      product.imageUrl = updatedImageUrl
-      product.description = updatedDesc
+  const product = await Product.findById(prodId)
 
-      return product.save()
-    })
-    .then(() => res.redirect('/admin/products'))
-    .catch(err => console.log(err))
+  // Updated product data
+  product.title = updatedTitle
+  product.price = updatedPrice
+  product.imageUrl = updatedImageUrl
+  product.description = updatedDesc
+
+  await product.save()
+  res.redirect('/admin/products')
 }
 
 // Deleting product
-exports.postDeleteProduct = (req, res, next) => {
+exports.postDeleteProduct = async (req, res, next) => {
   const prodId = req.body.productId
 
-  Product.findByIdAndRemove(prodId)
-    .then(() => res.redirect('/admin/products'))
-    .catch(err => console.log(err))
+  await Product.findByIdAndRemove(prodId)
+  res.redirect('/admin/products')
 }
