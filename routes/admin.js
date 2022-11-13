@@ -4,8 +4,11 @@ const router = express.Router()
 // Admin controller
 const adminController = require('../controllers/admin')
 
+// route guard
+const isAuth = require('../middleware/is-auth')
+
 // Adding product
-router.get('/add-product', adminController.getAddProduct)
+router.get('/add-product', isAuth, adminController.getAddProduct)
 router.post('/add-product', adminController.postAddProduct)
 
 // Getting admin products
