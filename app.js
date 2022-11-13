@@ -8,6 +8,7 @@ const mongoose = require('mongoose')
 const session = require('express-session')
 const User = require('./models/user')
 const MongoDBStorage = require('connect-mongodb-session')(session)
+const csrf = require('csurf')
 
 const MONGODB_URI =
   'mongodb+srv://Nika:ubTWvwgDtXgTSx2L@cluster0.wquqyac.mongodb.net/shop?retryWrites=true&w=majority'
@@ -18,6 +19,8 @@ const store = new MongoDBStorage({
   uri: MONGODB_URI,
   collection: 'sessions',
 })
+
+const csrfProtection = csrf()
 
 // Templating engine
 app.set('view engine', 'ejs')
@@ -44,6 +47,9 @@ app.use(
   })
 )
 
+// csrf
+app.use(csrfProtection)
+
 app.use((req, res, next) => {
   if (!req.session.user) {
     return next()
@@ -53,6 +59,13 @@ app.use((req, res, next) => {
     req.user = user
     next()
   })
+})
+
+app.use((req, res, next) => {
+  // set local variables
+  res.locals.isAuthenticated = req.session.isLoggedIn
+  res.locals.csrfToken = req.csrfToken()
+  next()
 })
 
 // Using routes
