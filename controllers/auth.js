@@ -4,9 +4,14 @@ const User = require('../models/user')
 
 // login
 exports.getLogin = (req, res, next) => {
+  let message = req.flash('error')
+  message = message.length > 0 ? message[0] : null
+
+  console.log(message)
   res.render('auth/login', {
     path: '/login',
     pageTitle: 'Login',
+    errorMessage: message,
   })
 }
 
@@ -17,12 +22,18 @@ exports.postLogin = async (req, res, next) => {
   // validate email
   const userDoc = await User.findOne({ email: email })
 
-  if (!userDoc) return res.redirect('/login')
+  if (!userDoc) {
+    req.flash('error', 'Invalid email or password.')
+    return res.redirect('/login')
+  }
 
   // validate password
   const passwordMatch = await bcrypt.compare(password, userDoc.password)
 
-  if (!passwordMatch) return res.redirect('/login')
+  if (!passwordMatch) {
+    req.flash('error', 'Invalid email or password.')
+    return res.redirect('/login')
+  }
 
   // create session
   req.session.isLoggedIn = true
@@ -40,20 +51,28 @@ exports.postLogout = (req, res, next) => {
 
 // sign up
 exports.getSignup = (req, res, next) => {
+  let message = req.flash('signupError')
+
+  message = message.length > 0 ? message[0] : null
+  console.log(message)
   res.render('auth/signup', {
     path: '/signup',
     pageTitle: 'Signup',
+    errorMessage: message,
   })
 }
 
 exports.postSignup = async (req, res, next) => {
   const email = req.body.email
   const password = req.body.password
-  const confirmPassword = req.body.confirmPassword
+  // const confirmPassword = req.body.confirmPassword ( soon )
 
   // if email is taken
   const userDoc = await User.findOne({ email: email })
-  if (userDoc) return res.redirect('/signup')
+  if (userDoc) {
+    req.flash('signupError', 'This E-mail is already registered.')
+    return res.redirect('/signup')
+  }
 
   const hashedPassword = await bcrypt.hash(password, 12)
 

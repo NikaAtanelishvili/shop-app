@@ -9,6 +9,7 @@ const session = require('express-session')
 const User = require('./models/user')
 const MongoDBStorage = require('connect-mongodb-session')(session)
 const csrf = require('csurf')
+const flash = require('connect-flash')
 
 const MONGODB_URI =
   'mongodb+srv://Nika:ubTWvwgDtXgTSx2L@cluster0.wquqyac.mongodb.net/shop?retryWrites=true&w=majority'
@@ -49,6 +50,9 @@ app.use(
 
 // csrf
 app.use(csrfProtection)
+
+// flash ( for auth error handling )
+app.use(flash())
 
 app.use((req, res, next) => {
   if (!req.session.user) {
