@@ -5,8 +5,7 @@ const nodemailer = require('nodemailer')
 const sendGridTransport = require('nodemailer-sendgrid-transport')
 
 const User = require('../models/user')
-const SENDGRID_API_KEY = require('../config/config')
-const SENDER_EMAIL = require('../config/config')
+const SENDGRID_API_KEY = require('../config')
 
 // nodemailer setup
 const transporter = nodemailer.createTransport(
@@ -19,7 +18,7 @@ const transporter = nodemailer.createTransport(
 
 // login
 exports.getLogin = (req, res, next) => {
-  let message = req.flash('error')
+  let message = req.flash('loginError')
   message = message.length > 0 ? message[0] : null
 
   console.log(message)
@@ -38,7 +37,7 @@ exports.postLogin = async (req, res, next) => {
   const userDoc = await User.findOne({ email: email })
 
   if (!userDoc) {
-    req.flash('error', 'Invalid email or password.')
+    req.flash('loginError', 'Invalid email or password.')
     return res.redirect('/login')
   }
 
@@ -46,7 +45,7 @@ exports.postLogin = async (req, res, next) => {
   const passwordMatch = await bcrypt.compare(password, userDoc.password)
 
   if (!passwordMatch) {
-    req.flash('error', 'Invalid email or password.')
+    req.flash('loginError', 'Invalid email or password.')
     return res.redirect('/login')
   }
 
@@ -66,7 +65,7 @@ exports.postLogout = (req, res, next) => {
 
 // sign up
 exports.getSignup = (req, res, next) => {
-  let message = req.flash('error')
+  let message = req.flash('signupError')
 
   message = message.length > 0 ? message[0] : null
   console.log(message)
@@ -85,7 +84,7 @@ exports.postSignup = async (req, res, next) => {
   // if email is taken
   const userDoc = await User.findOne({ email: email })
   if (userDoc) {
-    req.flash('error', 'This E-mail is already registered.')
+    req.flash('signupError', 'This E-mail is already registered.')
     return res.redirect('/signup')
   }
 
@@ -102,7 +101,7 @@ exports.postSignup = async (req, res, next) => {
   await transporter
     .sendMail({
       to: email,
-      from: SENDER_EMAIL,
+      from: 'atanelishvilinika@gmail.com',
       subject: 'Signup secceeded!',
       html: '<h1>You successfully signed up!</h1>',
     })
@@ -115,7 +114,7 @@ exports.postSignup = async (req, res, next) => {
 // reset password
 
 exports.getReset = (req, res, next) => {
-  let message = req.flash('error')
+  let message = req.flash('resetPasswordError')
   message = message.length > 0 ? message[0] : null
 
   res.render('auth/reset', {
@@ -126,7 +125,6 @@ exports.getReset = (req, res, next) => {
 }
 
 exports.postReset = (req, res, next) => {
-  console.log(SENDER_EMAIL, SENDGRID_API_KEY)
   crypto.randomBytes(32, async (err, buffer) => {
     if (err) {
       console.log(err)
@@ -136,7 +134,7 @@ exports.postReset = (req, res, next) => {
     const user = await User.findOne({ email: req.body.email })
 
     if (!user) {
-      req.flash('error', 'No account with that email found.')
+      req.flash('resetPasswordError', 'No account with that email found.')
       return res.redirect('/reset')
     }
     user.resetToken = token
@@ -144,19 +142,59 @@ exports.postReset = (req, res, next) => {
 
     await user.save()
 
-    console.log(req.body.email)
-
     transporter
       .sendMail({
         to: req.body.email,
-        from: SENDER_EMAIL,
+        from: 'atanelishvilinika@gmail.com',
         subject: 'Password reset',
         html: `
       <p>You requested a password reset</p>
-      <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password.</p>
+      <p>Click this <a href="http://localhost:3000/new-password/${token}">link</a> to set a new password.</p>
       `,
       })
       .catch(err => console.log(err))
     return res.redirect('/')
   })
+}
+
+exports.getNewPassword = async (req, res, next) => {
+  const token = req.params.token
+  // $gt greater then ...
+  const user = await User.findOne({
+    resetToken: token,
+    resetTokenExpiration: { $gt: Date.now() },
+  }).catch(err => console.log(err))
+
+  let message = req.flash('newPasswordError')
+  message = message.length > 0 ? message[0] : null
+
+  res.render('auth/new-password', {
+    path: '/new password',
+    pageTitle: 'New password',
+    errorMessage: message,
+    userId: user._id.toString(),
+    passwordToken: token,
+  })
+}
+
+exports.postNewPassword = async (req, res, next) => {
+  const newPassword = req.body.password
+  const userId = req.body.userId
+  const passwordToken = req.body.passwordToken
+
+  const user = await User.findOne({
+    resetToken: passwordToken,
+    resetTokenExpiration: { $gt: Date.now() },
+    _id: userId,
+  })
+
+  const hashedPassword = await bcrypt.hash(newPassword, 12)
+
+  user.password = hashedPassword
+  user.resetToken = null
+  user.resetTokenExpiration = null
+
+  await user.save()
+
+  return res.redirect('/login')
 }
