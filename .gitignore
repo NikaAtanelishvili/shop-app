@@ -11,6 +11,9 @@
 # production
 /build
 
+# api-key
+config.js
+
 
 # misc
 .DS_Store
