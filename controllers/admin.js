@@ -30,7 +30,7 @@ exports.postAddProduct = async (req, res, next) => {
 
 // Rendering admin products
 exports.getAdminProducts = async (req, res, next) => {
-  const products = await Product.find()
+  const products = await Product.find({ userId: req.user._id })
 
   res.render('admin/products', {
     prods: products,
@@ -70,6 +70,10 @@ exports.postEditProduct = async (req, res, next) => {
   // Get edited product
   const product = await Product.findById(prodId)
 
+  if (product.userId.toString() !== req.user._id.toString()) {
+    return res.redirect('/')
+  }
+
   // Updated product data
   product.title = updatedTitle
   product.price = updatedPrice
@@ -84,6 +88,6 @@ exports.postEditProduct = async (req, res, next) => {
 exports.postDeleteProduct = async (req, res, next) => {
   const prodId = req.body.productId
 
-  await Product.findByIdAndRemove(prodId)
+  await Product.deleteOne({ _id: prodId, userId: req.user._id })
   res.redirect('/admin/products')
 }

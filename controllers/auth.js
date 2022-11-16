@@ -53,7 +53,9 @@ exports.postLogin = async (req, res, next) => {
   req.session.isLoggedIn = true
   req.session.user = userDoc
 
-  return res.redirect('/')
+  return req.session.save(() => {
+    return res.redirect('/')
+  })
 }
 
 exports.postLogout = (req, res, next) => {
