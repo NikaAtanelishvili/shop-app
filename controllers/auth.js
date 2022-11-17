@@ -27,6 +27,11 @@ exports.getLogin = (req, res, next) => {
     path: '/login',
     pageTitle: 'Login',
     errorMessage: message,
+    oldInput: {
+      email: '',
+      password: '',
+    },
+    validationErrors: [],
   })
 }
 
@@ -41,6 +46,11 @@ exports.postLogin = async (req, res, next) => {
       path: '/login',
       pageTitle: 'Login',
       errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password,
+      },
+      validationErrors: errors.array(),
     })
   }
 
@@ -76,22 +86,28 @@ exports.postLogout = (req, res, next) => {
   })
 }
 
-// sign up
 exports.getSignup = (req, res, next) => {
   let message = req.flash('signupError')
 
   message = message.length > 0 ? message[0] : null
-  console.log(message)
+
   res.render('auth/signup', {
     path: '/signup',
     pageTitle: 'Signup',
     errorMessage: message,
+    oldInput: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+    validationErrors: [],
   })
 }
 
 exports.postSignup = async (req, res, next) => {
   const email = req.body.email
   const password = req.body.password
+  const confirmPassword = req.body.confirmPassword
 
   const errors = validationResult(req)
 
@@ -100,6 +116,12 @@ exports.postSignup = async (req, res, next) => {
       path: '/signup',
       pageTitle: 'Signup',
       errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+      },
+      validationErrors: errors.array(),
     })
   }
 
