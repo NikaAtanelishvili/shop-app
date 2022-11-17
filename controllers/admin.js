@@ -1,6 +1,9 @@
 const Product = require('../models/product')
 
-// Rendering edit product
+/** Add Product
+ * @get
+ * Rendering Add Product page
+ */
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Product',
@@ -9,7 +12,13 @@ exports.getAddProduct = (req, res, next) => {
   })
 }
 
-// Adding admin product
+/** Add Product
+ * @post
+ * @async
+ * Getting product data.
+ * Creating product object.
+ * Saving to Database.
+ */
 exports.postAddProduct = async (req, res, next) => {
   const title = req.body.title
   const price = req.body.price
@@ -28,7 +37,10 @@ exports.postAddProduct = async (req, res, next) => {
   res.redirect('/admin/products')
 }
 
-// Rendering admin products
+/** Admin Products
+ * @get
+ * Render Admin products
+ */
 exports.getAdminProducts = async (req, res, next) => {
   const products = await Product.find({ userId: req.user._id })
 
@@ -39,7 +51,12 @@ exports.getAdminProducts = async (req, res, next) => {
   })
 }
 
-// Fetching and redering product that should be edited
+/** Edit Products
+ * @get
+ * @async
+ * Finding target product.
+ * Rendering edit product page.
+ */
 exports.getEditProduct = async (req, res, next) => {
   const editMode = req.query.edit
 
@@ -59,7 +76,14 @@ exports.getEditProduct = async (req, res, next) => {
   })
 }
 
-// Saving edited products
+/** Edit Products
+ * @post
+ * @async
+ * Getting product data inputs.
+ * Finding product.
+ * Validate user.
+ * Updating product data
+ */
 exports.postEditProduct = async (req, res, next) => {
   const prodId = req.body.productId
   const updatedTitle = req.body.title
@@ -84,7 +108,12 @@ exports.postEditProduct = async (req, res, next) => {
   res.redirect('/admin/products')
 }
 
-// Deleting product
+/** Delete Product
+ * @post
+ * @async
+ * Find target product.
+ * Delete product.
+ */
 exports.postDeleteProduct = async (req, res, next) => {
   const prodId = req.body.productId
 

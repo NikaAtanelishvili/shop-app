@@ -8,7 +8,7 @@ const { validationResult } = require('express-validator')
 const User = require('../models/user')
 const SENDGRID_API_KEY = require('../config')
 
-// nodemailer setup
+// Nodemailer setup
 const transporter = nodemailer.createTransport(
   sendGridTransport({
     auth: {
@@ -17,12 +17,14 @@ const transporter = nodemailer.createTransport(
   })
 )
 
-// login
+/** Log In
+ * @get
+ * Render Log in page.
+ */
 exports.getLogin = (req, res, next) => {
   let message = req.flash('loginError')
   message = message.length > 0 ? message[0] : null
 
-  console.log(message)
   res.render('auth/login', {
     path: '/login',
     pageTitle: 'Login',
@@ -35,6 +37,13 @@ exports.getLogin = (req, res, next) => {
   })
 }
 
+/** Log In
+ * @post
+ * @async
+ * Getting User inputs.
+ * Validate User inputs.
+ * Create Sessions.
+ */
 exports.postLogin = async (req, res, next) => {
   const email = req.body.email
   const password = req.body.password
@@ -79,6 +88,11 @@ exports.postLogin = async (req, res, next) => {
   })
 }
 
+/** Log out
+ * @post
+ * Log out from account
+ * Delete session.
+ */
 exports.postLogout = (req, res, next) => {
   req.session.destroy(err => {
     console.log(err)
@@ -86,6 +100,10 @@ exports.postLogout = (req, res, next) => {
   })
 }
 
+/** Sign Up
+ * @get
+ * Rendeting Sign up Page
+ */
 exports.getSignup = (req, res, next) => {
   let message = req.flash('signupError')
 
@@ -104,6 +122,15 @@ exports.getSignup = (req, res, next) => {
   })
 }
 
+/** Sign Up
+ * @post
+ * @async
+ * Get User Inputs.
+ * Validate User Inputs.
+ * Hash Password.
+ * Create User.
+ * Send E-mail to User.
+ */
 exports.postSignup = async (req, res, next) => {
   const email = req.body.email
   const password = req.body.password
@@ -148,8 +175,10 @@ exports.postSignup = async (req, res, next) => {
   res.redirect('/login')
 }
 
-// reset password
-
+/** Change Password
+ * @get
+ * Rendering Change Password Page
+ */
 exports.getReset = (req, res, next) => {
   let message = req.flash('resetPasswordError')
   message = message.length > 0 ? message[0] : null
@@ -161,12 +190,20 @@ exports.getReset = (req, res, next) => {
   })
 }
 
+/** Change Password
+ * @post
+ * @async
+ * Create Token for Reseting Password.
+ * Assign User Token and Expiration Time.
+ * Sending Confirmation E-mail to User.
+ */
 exports.postReset = (req, res, next) => {
   crypto.randomBytes(32, async (err, buffer) => {
     if (err) {
       console.log(err)
       return res.redirect('/reset')
     }
+
     const token = buffer.toString('hex')
     const user = await User.findOne({ email: req.body.email })
 
@@ -194,6 +231,12 @@ exports.postReset = (req, res, next) => {
   })
 }
 
+/** Change Password
+ * @get
+ * @async
+ * Validate Token.
+ * Rendering New password Page.
+ */
 exports.getNewPassword = async (req, res, next) => {
   const token = req.params.token
   // $gt greater then ...
@@ -214,6 +257,13 @@ exports.getNewPassword = async (req, res, next) => {
   })
 }
 
+/** Change Password
+ * @post
+ * @async
+ * Getting NewPassword, UserId, Token.
+ * Changing User's Password.
+ * Updating Database
+ */
 exports.postNewPassword = async (req, res, next) => {
   const newPassword = req.body.password
   const userId = req.body.userId
