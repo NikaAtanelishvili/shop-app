@@ -3,6 +3,7 @@ const crypto = require('crypto')
 const bcrypt = require('bcryptjs')
 const nodemailer = require('nodemailer')
 const sendGridTransport = require('nodemailer-sendgrid-transport')
+const { validationResult } = require('express-validator')
 
 const User = require('../models/user')
 const SENDGRID_API_KEY = require('../config')
@@ -32,6 +33,16 @@ exports.getLogin = (req, res, next) => {
 exports.postLogin = async (req, res, next) => {
   const email = req.body.email
   const password = req.body.password
+
+  const errors = validationResult(req)
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render('auth/login', {
+      path: '/login',
+      pageTitle: 'Login',
+      errorMessage: errors.array()[0].msg,
+    })
+  }
 
   // validate email
   const userDoc = await User.findOne({ email: email })
@@ -81,13 +92,15 @@ exports.getSignup = (req, res, next) => {
 exports.postSignup = async (req, res, next) => {
   const email = req.body.email
   const password = req.body.password
-  // const confirmPassword = req.body.confirmPassword ( soon )
 
-  // if email is taken
-  const userDoc = await User.findOne({ email: email })
-  if (userDoc) {
-    req.flash('signupError', 'This E-mail is already registered.')
-    return res.redirect('/signup')
+  const errors = validationResult(req)
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render('auth/signup', {
+      path: '/signup',
+      pageTitle: 'Signup',
+      errorMessage: errors.array()[0].msg,
+    })
   }
 
   const hashedPassword = await bcrypt.hash(password, 12)
@@ -107,7 +120,7 @@ exports.postSignup = async (req, res, next) => {
       subject: 'Signup secceeded!',
       html: '<h1>You successfully signed up!</h1>',
     })
-    .then(res => console.log(res))
+
     .catch(err => console.log(err))
 
   res.redirect('/login')
