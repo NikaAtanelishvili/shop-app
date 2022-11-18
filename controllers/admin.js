@@ -1,4 +1,5 @@
 const Product = require('../models/product')
+const { validationResult } = require('express-validator')
 
 /** Add Product
  * @get
@@ -9,6 +10,15 @@ exports.getAddProduct = (req, res, next) => {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
     editing: false,
+    errorMessage: null,
+    hasError: false,
+    product: {
+      title: '',
+      imageUrl: '',
+      price: '',
+      description: '',
+    },
+    validationErrors: [],
   })
 }
 
@@ -24,6 +34,25 @@ exports.postAddProduct = async (req, res, next) => {
   const price = req.body.price
   const description = req.body.description
   const imageUrl = req.body.imageUrl
+
+  const errors = validationResult(req)
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Add Product',
+      path: '/admin/add-product',
+      editing: false,
+      hasError: true,
+      errorMessage: errors.array()[0].msg,
+      product: {
+        title: title,
+        imageUrl: imageUrl,
+        price: price,
+        description: description,
+      },
+      validationErrors: errors.array(),
+    })
+  }
 
   const product = new Product({
     title: title,
@@ -67,12 +96,15 @@ exports.getEditProduct = async (req, res, next) => {
   const product = await Product.findById(productId)
 
   if (!product) return res.redirect('/')
-
+  console.log(product)
   res.render('admin/edit-product', {
     pageTitle: 'Edit Product',
     path: '/admin/edit-product',
     editing: editMode,
     product: product,
+    hasError: false,
+    errorMessage: null,
+    validationErrors: [],
   })
 }
 
@@ -90,6 +122,26 @@ exports.postEditProduct = async (req, res, next) => {
   const updatedPrice = req.body.price
   const updatedImageUrl = req.body.imageUrl
   const updatedDesc = req.body.description
+
+  const errors = validationResult(req)
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Edit Product',
+      path: '/admin/edit-product',
+      editing: true,
+      hasError: true,
+      product: {
+        title: updatedTitle,
+        imageUrl: updatedImageUrl,
+        price: updatedPrice,
+        description: updatedDesc,
+        _id: prodId,
+      },
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array(),
+    })
+  }
 
   // Get edited product
   const product = await Product.findById(prodId)
