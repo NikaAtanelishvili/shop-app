@@ -1,5 +1,7 @@
 const Product = require('../models/product')
 const Order = require('../models/orders')
+const path = require('path')
+const fs = require('fs')
 
 // Rendering product
 exports.getProducts = async (req, res, next) => {
@@ -147,4 +149,29 @@ exports.getOrders = async (req, res, next) => {
     error.httpStatusCode = 500
     return next(error)
   }
+}
+
+exports.getInvoice = async (req, res, next) => {
+  const orderId = req.params.orderId
+
+  const order = await Order.findById(orderId)
+
+  if (!order) return next(new Error('No order found'))
+
+  if (order.user.userId.toString() !== req.user._id.toString()) {
+    return next(new Error('Unauthoried'))
+  }
+
+  const invoiceName = `invoice-${orderId}.pdf`
+  const invoicePath = path.join('invoice', invoiceName)
+  fs.readFile(invoicePath, (err, data) => {
+    if (err) return next(err)
+
+    // Open in browser
+    res.setHeader('Content-Type', 'application/pdf')
+
+    // How content is serverd
+    res.setHeader(`Content-Disposition`, `inline; filename="${invoiceName}"`)
+    res.send(data)
+  })
 }
