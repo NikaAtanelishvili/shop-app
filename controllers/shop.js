@@ -3,6 +3,8 @@ const Order = require('../models/orders')
 const path = require('path')
 const fs = require('fs')
 
+const PDFDocument = require('pdfkit')
+
 // Rendering product
 exports.getProducts = async (req, res, next) => {
   try {
@@ -162,16 +164,44 @@ exports.getInvoice = async (req, res, next) => {
     return next(new Error('Unauthoried'))
   }
 
+  const orderProducts = order.products
+
   const invoiceName = `invoice-${orderId}.pdf`
   const invoicePath = path.join('invoice', invoiceName)
-  fs.readFile(invoicePath, (err, data) => {
-    if (err) return next(err)
 
-    // Open in browser
-    res.setHeader('Content-Type', 'application/pdf')
+  const pdfDoc = new PDFDocument()
 
-    // How content is serverd
-    res.setHeader(`Content-Disposition`, `inline; filename="${invoiceName}"`)
-    res.send(data)
-  })
+  // Open in browser
+  res.setHeader('Content-Type', 'application/pdf')
+
+  // How content is serverd
+  res.setHeader(`Content-Disposition`, `inline; filename="${invoiceName}"`)
+
+  pdfDoc.pipe(fs.createWriteStream(invoicePath))
+  pdfDoc.pipe(res)
+
+  pdfDoc.fontSize(30).text('Invoice')
+
+  let totalPrice = 0
+
+  for (let item of orderProducts) {
+    totalPrice += item.product.price
+    pdfDoc.fontSize(14).text(
+      `
+
+      
+Name: ${item.product.title}
+Price: $ ${item.product.price}
+Description: ${item.product.description}
+Quantity: ${item.quantity}
+`
+    )
+  }
+
+  pdfDoc.fontSize(20).text(`Total price: ${totalPrice}`)
+
+  pdfDoc.end()
+
+  // Forward read data to response
+  file.pipe(res)
 }
