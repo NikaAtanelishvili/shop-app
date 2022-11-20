@@ -18,7 +18,6 @@ router.post(
       .trim()
       .isLength({ min: 3 })
       .withMessage('Title length shoud be at least 3 characters long.'),
-    body('imageUrl').isURL().withMessage('Please provide valid URL'),
     body('price')
       .isFloat()
       .withMessage('Please use float number for product price'),
@@ -44,7 +43,6 @@ router.post(
       .trim()
       .isLength({ min: 3 })
       .withMessage('Title length shoud be at least 3 characters long.'),
-    body('imageUrl').isURL().withMessage('Please provide valid URL'),
     body('price')
       .isFloat()
       .withMessage('Please use float number for product price'),

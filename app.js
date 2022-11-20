@@ -10,6 +10,7 @@ const User = require('./models/user')
 const MongoDBStorage = require('connect-mongodb-session')(session)
 const csrf = require('csurf')
 const flash = require('connect-flash')
+const multer = require('multer')
 
 const MONGODB_URI =
   'mongodb+srv://Nika:ubTWvwgDtXgTSx2L@cluster0.wquqyac.mongodb.net/shop?retryWrites=true&w=majority'
@@ -23,6 +24,27 @@ const store = new MongoDBStorage({
 
 const csrfProtection = csrf()
 
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'images')
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${new Date().toISOString()}_${file.originalname}`)
+  },
+})
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === 'image/png' ||
+    file.mimetype === 'image/jpg' ||
+    file.mimetype === 'image/jpeg'
+  ) {
+    cb(null, true)
+  } else {
+    cb(null, false)
+  }
+}
+
 // Templating engine
 app.set('view engine', 'ejs')
 app.set('views', 'views')
@@ -32,11 +54,21 @@ const adminRoutes = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
 const authRoutes = require('./routes/auth')
 
-// Body parser
+// Body parser ( Parses strings )
 app.use(bodyParser.urlencoded({ extended: false }))
 
-// CSS
+// Multer ( Pasrses files )
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+)
+
+// Serve Public & Images
 app.use(express.static(path.join(__dirname, 'public')))
+/** Why '/images'
+ * This points folder and serve files as if they were on the root.
+ * but we want to keep them in the images folder.
+ */
+app.use('/images', express.static(path.join(__dirname, 'images')))
 
 // Session
 app.use(
