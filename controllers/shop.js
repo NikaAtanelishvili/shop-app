@@ -3,7 +3,10 @@ const Order = require('../models/orders')
 const path = require('path')
 const fs = require('fs')
 
+const STRIPE_SECRET_KEY = require('../config')
+
 const PDFDocument = require('pdfkit')
+const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
 const ITEMS_PER_PAGE = 2
 
@@ -136,8 +139,56 @@ exports.postCartDeleteProduct = async (req, res, next) => {
   }
 }
 
+exports.getCheckout = async (req, res, next) => {
+  try {
+    const user = await req.user.populate('cart.items.productId')
+
+    const products = user.cart.items
+
+    const total = products.reduce(
+      (acc, p) => acc + p.quantity * p.productId.price,
+      0
+    )
+
+    // Create session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      line_items: products.map(p => {
+        return {
+          quantity: p.quantity,
+          price_data: {
+            currency: 'usd',
+            unit_amount: p.productId.price * 100,
+            product_data: {
+              name: p.productId.title,
+              description: p.productId.description,
+            },
+          },
+        }
+      }),
+      customer_email: req.user.email,
+      success_url: req.protocol + '://' + req.get('host') + '/checkout/success',
+      cancel_url: req.protocol + '://' + req.get('host') + '/checkout/cancel',
+    })
+    res.render('shop/checkout', {
+      path: '/checkout',
+      pageTitle: 'Checkout',
+      products: products,
+      totalSum: total,
+      sessionId: session.id,
+    })
+  } catch (err) {
+    console.log(err)
+
+    const error = new Error(err)
+    error.httpStatusCode = 500
+    return next(error)
+  }
+}
+
 // Getting orders
-exports.postOrder = async (req, res, next) => {
+exports.getCheckoutSuccess = async (req, res, next) => {
   try {
     const user = await req.user.populate('cart.items.productId')
 
