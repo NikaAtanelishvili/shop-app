@@ -6,13 +6,12 @@ const sendGridTransport = require('nodemailer-sendgrid-transport')
 const { validationResult } = require('express-validator')
 
 const User = require('../models/user')
-const SENDGRID_API_KEY = require('../config')
 
 // Nodemailer setup
 const transporter = nodemailer.createTransport(
   sendGridTransport({
     auth: {
-      api_key: SENDGRID_API_KEY,
+      api_key: process.env.SENDGRID_API_KEY,
     },
   })
 )
@@ -172,7 +171,7 @@ exports.postSignup = async (req, res, next) => {
     await transporter
       .sendMail({
         to: email,
-        from: 'atanelishvilinika@gmail.com',
+        from: process.env.SENDGRID_SENDER,
         subject: 'Signup secceeded!',
         html: '<h1>You successfully signed up!</h1>',
       })

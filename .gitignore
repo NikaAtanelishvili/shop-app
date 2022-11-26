@@ -17,6 +17,13 @@ config.js
 # images
 images
 
+#sensitive data
+server.cert
+server.key
+nodemon.json
+
+# logs
+access.log
 
 # misc
 .DS_Store

@@ -3,10 +3,8 @@ const Order = require('../models/orders')
 const path = require('path')
 const fs = require('fs')
 
-const STRIPE_SECRET_KEY = require('../config')
-
 const PDFDocument = require('pdfkit')
-const stripe = require('stripe')(STRIPE_SECRET_KEY)
+const stripe = require('stripe')(process.env.STRIPE_KEY)
 
 const ITEMS_PER_PAGE = 2
 
@@ -149,7 +147,7 @@ exports.getCheckout = async (req, res, next) => {
       (acc, p) => acc + p.quantity * p.productId.price,
       0
     )
-
+    console.log('a')
     // Create session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -171,6 +169,7 @@ exports.getCheckout = async (req, res, next) => {
       success_url: req.protocol + '://' + req.get('host') + '/checkout/success',
       cancel_url: req.protocol + '://' + req.get('host') + '/checkout/cancel',
     })
+
     res.render('shop/checkout', {
       path: '/checkout',
       pageTitle: 'Checkout',
